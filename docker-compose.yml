@@ -1,0 +1,24 @@
+services:
+  zelda-games:
+    build: .
+    image: zelda-games:latest
+    container_name: zelda-games
+    restart: unless-stopped
+    networks:
+      - zelda-net
+
+  cloudflared:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflared-zelda
+    restart: unless-stopped
+    command: tunnel --no-autoupdate run
+    environment:
+      TUNNEL_TOKEN: ${TUNNEL_TOKEN}
+    depends_on:
+      - zelda-games
+    networks:
+      - zelda-net
+
+networks:
+  zelda-net:
+    driver: bridge

@@ -1,6 +1,6 @@
 FROM nginx:alpine
 
-COPY src/ /usr/share/nginx/html/
+COPY enchanted_shadows/ /usr/share/nginx/html/
 
 EXPOSE 80
 
