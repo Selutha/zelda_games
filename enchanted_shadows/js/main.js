@@ -229,8 +229,8 @@ const Game = {
     },
 
     startGame() {
-        this.currentLevel = 4;  // TODO: change back to 0 after testing castle
-        this.loadLevel(4);
+        this.currentLevel = 0;
+        this.loadLevel(0);
         this.state = this.STATE.LEVEL_INTRO;
         this.levelIntroTimer = 2.5;
     },
