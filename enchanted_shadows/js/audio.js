@@ -69,6 +69,9 @@ const Audio = {
             victory: () => { [523,659,784,1047].forEach((f,i) => setTimeout(() => this._tone(f, 0.3, 'sine', 0.25), i*200)); },
             gameover: () => { [400,350,300,200].forEach((f,i) => setTimeout(() => this._tone(f, 0.4, 'square', 0.2), i*300)); },
             bosshit: () => this._tone(120, 0.3, 'sawtooth', 0.3, 60),
+            roar: () => { this._tone(90, 0.6, 'sawtooth', 0.35, 50); this._noise(0.4, 0.15); },
+            dragonfree: () => { [523, 659, 784, 988, 1319].forEach((freq, i) =>
+                setTimeout(() => this._tone(freq, 0.35, 'sine', 0.25), i * 160)); },
         };
         if (sounds[name]) sounds[name]();
     },

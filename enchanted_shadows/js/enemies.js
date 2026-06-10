@@ -6,6 +6,7 @@ const Enemies = {
 
     create(type, x, y) {
         if (type === 'shadowKing') return Boss.create(x, y);
+        if (type === 'blackDragon') return Dragon.create(x, y);
 
         const base = {
             x, y,
@@ -53,6 +54,14 @@ const Enemies = {
             if (Boss.update(enemy, game)) {
                 game.state = game.STATE.VICTORY;
                 Audio.setMusic(null);
+            }
+            return;
+        }
+
+        // The dragon is freed rather than killed; when its farewell ends, move on
+        if (enemy.type === 'blackDragon') {
+            if (Dragon.update(enemy, game)) {
+                game.nextLevel();
             }
             return;
         }
@@ -189,6 +198,10 @@ const Enemies = {
     hit(enemy, damage, type, game) {
         if (enemy.type === 'shadowKing') {
             Boss.hit(enemy, damage, type, game);
+            return;
+        }
+        if (enemy.type === 'blackDragon') {
+            Dragon.hit(enemy, damage, type, game);
             return;
         }
         if (enemy.dead) return;

@@ -8,6 +8,8 @@ const Boss = {
             vx: 0, vy: 0,
             facing: -1,
             type: 'shadowKing',
+            isBoss: true,
+            bossName: 'SHADOW KING',
             health: 20,
             maxHealth: 20,
             damage: 2,

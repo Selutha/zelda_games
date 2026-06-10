@@ -227,9 +227,9 @@ const UI = {
             ctx.textAlign = 'left';
         }
 
-        // Boss health bar
-        const boss = game.enemies.find(e => e.type === 'shadowKing');
-        if (boss && !boss.dead) {
+        // Boss health bar (any boss-flagged enemy; hidden once the dragon is freed)
+        const boss = game.enemies.find(e => e.isBoss);
+        if (boss && !boss.dead && !boss.freed) {
             const bw = 200;
             const bx = game.width / 2 - bw / 2;
             ctx.fillStyle = 'rgba(0,0,0,0.5)';
@@ -239,7 +239,7 @@ const UI = {
             ctx.fillStyle = '#FFF';
             ctx.font = '10px monospace';
             ctx.textAlign = 'center';
-            ctx.fillText('SHADOW KING', game.width / 2, game.height - 19);
+            ctx.fillText(boss.bossName || 'SHADOW KING', game.width / 2, game.height - 19);
             ctx.textAlign = 'left';
         }
     },
@@ -357,6 +357,16 @@ const UI = {
             ctx.fillStyle = `hsl(${(this.victoryTimer * 50 + i * 30) % 360}, 80%, 70%)`;
             ctx.fillRect(sx, sy, 3, 3);
         }
+
+        // The freed dragon soars across the sky
+        const dragonX = ((this.victoryTimer * 90) % (game.width + 300)) - 150;
+        const dragonY = 70 + Math.sin(this.victoryTimer * 1.2) * 22;
+        ctx.save();
+        ctx.translate(dragonX, dragonY);
+        ctx.scale(0.8, 0.8);
+        Sprites._drawDragon(ctx, { width: 72, height: 44, freed: true, action: 'fly' },
+            0, 0, this.victoryTimer, 1);
+        ctx.restore();
 
         // Golden spear
         const spearY = 120 + Math.sin(this.victoryTimer * 2) * 10;

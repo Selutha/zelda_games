@@ -31,6 +31,7 @@ const Levels = {
         this.data.push(this._createDeepForest());
         this.data.push(this._createMysticGrove());
         this.data.push(this._createForestEdge());
+        this.data.push(this._createDragonsBridge());
         this.data.push(this._createCastleGate());
         this.data.push(this._createCastleHalls());
         this.data.push(this._createDungeonDepths());
@@ -299,7 +300,56 @@ const Levels = {
 
 
 
-    // Level 4: Castle Gate - 2 floors, 1 key, 1 locked door
+    // Level 4: The Dragon's Bridge - mini-boss arena between forest and castle.
+    // The Shadow King's black dragon guards the bridge; freeing it ends the level.
+    _createDragonsBridge() {
+        const cols = 40;
+        const rows = 15;
+        const _ = 0, S = 3, B = 4, W = 5, T = 12, C = 13;
+
+        const tiles = [
+            //  0  1  2  3  4  5  6  7  8  9 10 11 12 13 14 15 16 17 18 19 20 21 22 23 24 25 26 27 28 29 30 31 32 33 34 35 36 37 38 39
+            [  _,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_ ],  // row 0  - open sky
+            [  _,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_ ],  // row 1
+            [  B,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,B ],  // row 2  - wall tops
+            [  B,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,B ],  // row 3
+            [  B,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,B ],  // row 4
+            [  B,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,B ],  // row 5
+            [  B,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,B ],  // row 6
+            [  B,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,B ],  // row 7
+            [  B,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,B ],  // row 8
+            [  B,_,_,_,_,_,_,_,W,W,W,W,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,W,W,W,W,_,_,_,_,_,_,_,B ],  // row 9  - jump platforms
+            [  B,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,B ],  // row 10
+            [  B,C,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,_,C,B ],  // row 11 - crystal deco
+            [  B,T,_,_,_,_,_,_,_,_,_,_,T,_,_,_,_,_,_,_,_,_,_,_,_,_,_,T,_,_,_,_,_,_,_,_,_,_,T,B ],  // row 12 - torches
+            [  S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S ],  // row 13 - bridge deck
+            [  S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S,S ],  // row 14
+        ];
+
+        return {
+            name: "The Dragon's Bridge",
+            theme: "castle",
+            cols: cols,
+            rows: rows,
+            tiles: tiles,
+            startX: 64,
+            startY: 386,       // row 13 top (13*32=416) minus player height (30)
+            enemies: [
+                { type: 'blackDragon', x: 800, y: 250 }
+            ],
+            puzzles: [],
+            hints: [
+                { col: 4, row: 12, text: 'Jump and throw stars! Dodge when its mouth glows!' }
+            ],
+            hearts: [[6, 12], [33, 12]],
+            exitX: null,       // freeing the dragon ends the level
+            exitY: null,
+            get widthPx()  { return this.cols * 32; },
+            get heightPx() { return this.rows * 32; }
+        };
+    },
+
+    // Level 5: Castle Gate - 2 floors, 1 key, 1 locked door
     _createCastleGate() {
         const cols = 45;
         const rows = 16;
@@ -365,7 +415,7 @@ const Levels = {
         };
     },
 
-    // Level 5: Castle Halls - 3 floors, 2 keys, 2 locked doors
+    // Level 6: Castle Halls - 3 floors, 2 keys, 2 locked doors
     _createCastleHalls() {
         const cols = 45;
         const rows = 22;
@@ -445,7 +495,7 @@ const Levels = {
         };
     },
 
-    // Level 6: Dungeon Depths - 2 keys, 2 locked doors, ice + spikes
+    // Level 7: Dungeon Depths - 2 keys, 2 locked doors, ice + spikes
     _createDungeonDepths() {
         const cols = 45;
         const rows = 18;
@@ -518,7 +568,7 @@ const Levels = {
         };
     },
 
-    // Level 7: Tower Ascent - 4 floors, spring boards, 2 keys, 2 locked doors
+    // Level 8: Tower Ascent - 4 floors, spring boards, 2 keys, 2 locked doors
     _createTowerAscent() {
         const cols = 30;
         const rows = 22;
@@ -593,7 +643,7 @@ const Levels = {
         };
     },
 
-    // Level 8: Shadow King's Throne (Boss)
+    // Level 9: Shadow King's Throne (Boss)
     _createShadowKingsThrone() {
         const cols = 40;
         const rows = 15;

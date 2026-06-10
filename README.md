@@ -5,8 +5,9 @@ No frameworks, no build step, no external assets — all sprites are drawn proce
 all sound is synthesized in the browser with the Web Audio API.
 
 Play as a ninja mage fighting through forests, a castle, and a dungeon to defeat the
-Shadow King across 9 levels: Forest Clearing, Deep Forest, Mystic Grove, Forest Edge,
-Castle Gate, Castle Halls, Dungeon Depths, Tower Ascent, and the Shadow King's Throne.
+Shadow King across 10 levels: Forest Clearing, Deep Forest, Mystic Grove, Forest Edge,
+The Dragon's Bridge, Castle Gate, Castle Halls, Dungeon Depths, Tower Ascent, and the
+Shadow King's Throne.
 
 ## Features
 
@@ -19,6 +20,9 @@ Castle Gate, Castle Halls, Dungeon Depths, Tower Ascent, and the Shadow King's T
   - **No-Sense** (30 mana) — disorients nearby enemies for 5 seconds
 - Enemies with distinct behaviors: wolves, bats, spiders, shadow soldiers, and
   skeleton mages, plus a multi-phase Shadow King boss fight
+- A black dragon mini-boss guarding the bridge to the castle — it telegraphs its
+  fire breath and swoops, and defeating it breaks the Shadow King's spell, *freeing*
+  the dragon rather than slaying it (watch the sky on the victory screen)
 - Puzzles: switches, moving platforms, crystals, keys, and locked doors
 - Coins scattered through every level (with a HUD counter) — coin trails mark the
   way through trickier routes, and your total carries across levels in a run
@@ -84,6 +88,13 @@ podman-compose up -d
 ```
 
 In the tunnel's public hostname settings, point the route at `http://zelda-games:80`.
+
+To update a running deployment from a development machine, use the deploy script
+(it pushes the current branch, then pulls, rebuilds, and verifies on the host):
+
+```bash
+NUC_HOST=root@yourhost REMOTE_DIR=/path/to/zelda_games ./deploy.sh
+```
 
 ## License
 

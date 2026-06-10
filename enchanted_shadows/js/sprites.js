@@ -950,6 +950,20 @@ const Sprites = {
 
         ctx.save();
 
+        // The dragon has stateful visuals (telegraph glow, freed colors), so it
+        // gets its own draw path instead of the primitive-only _drawEnemyType
+        if (enemy.type === 'blackDragon') {
+            this._drawDragon(ctx, enemy, sx, sy, t, facing);
+            if (enemy.frozen) {
+                ctx.globalAlpha = 0.4;
+                ctx.fillStyle = '#88ccff';
+                ctx.fillRect(sx - 1, sy - 1, enemy.width + 2, enemy.height + 2);
+                ctx.globalAlpha = 1;
+            }
+            ctx.restore();
+            return;
+        }
+
         // Death animation: shrink and fade
         if (enemy.dead) {
             const maxDeath = enemy.type === 'shadowKing' ? 3 : 0.5;
@@ -994,6 +1008,155 @@ const Sprites = {
                 ctx.fillRect(Math.floor(starX) - 1, Math.floor(starY), 3, 1);
                 ctx.fillRect(Math.floor(starX), Math.floor(starY) - 1, 1, 3);
             }
+        }
+
+        ctx.restore();
+    },
+
+    // =========================================================================
+    // _drawDragon - the Black Dragon mini-boss (72x44, drawn facing right)
+    // Corrupted: purple wing membranes and burning red eyes.
+    // Freed: golden membranes and friendly green eyes.
+    // =========================================================================
+    _drawDragon(ctx, dragon, x, y, t, facing) {
+        ctx.save();
+        if (facing === -1) {
+            ctx.translate(x + dragon.width, y);
+            ctx.scale(-1, 1);
+        } else {
+            ctx.translate(x, y);
+        }
+
+        const freed = dragon.freed;
+        const accent = freed ? '#FFD700' : '#7733CC';   // the spell's color: purple -> gold
+        const eyeColor = freed ? '#44EE88' : '#FF4422';
+        const flap = Math.sin(t * (freed ? 4 : 8)) * 12;
+
+        // Magic aura
+        ctx.globalAlpha = 0.12 + 0.05 * Math.sin(t * 3);
+        ctx.fillStyle = accent;
+        ctx.beginPath();
+        ctx.arc(36, 22, 40, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.globalAlpha = 1;
+
+        // Far wing (behind the body)
+        ctx.fillStyle = '#15151f';
+        ctx.beginPath();
+        ctx.moveTo(30, 18);
+        ctx.lineTo(10, 2 + flap);
+        ctx.lineTo(20, 16);
+        ctx.lineTo(8, 12 + flap * 0.6);
+        ctx.lineTo(26, 22);
+        ctx.closePath();
+        ctx.fill();
+
+        // Tail with a spade tip, swaying
+        const tailSway = Math.sin(t * 3) * 3;
+        ctx.fillStyle = '#1b1b26';
+        ctx.fillRect(2, 22 + tailSway, 16, 4);
+        ctx.beginPath();
+        ctx.moveTo(2, 24 + tailSway);
+        ctx.lineTo(-4, 18 + tailSway);
+        ctx.lineTo(-4, 30 + tailSway);
+        ctx.closePath();
+        ctx.fill();
+
+        // Body
+        ctx.fillStyle = '#1b1b26';
+        ctx.beginPath();
+        ctx.ellipse(34, 24, 20, 11, 0, 0, Math.PI * 2);
+        ctx.fill();
+        // Belly plates
+        ctx.fillStyle = '#2e2e3e';
+        ctx.fillRect(20, 28, 26, 3);
+        ctx.fillRect(22, 31, 22, 2);
+
+        // Tucked legs
+        ctx.fillStyle = '#15151f';
+        ctx.fillRect(26, 32, 5, 6);
+        ctx.fillRect(38, 32, 5, 6);
+
+        // Back spikes
+        ctx.fillStyle = '#2e2e3e';
+        for (let i = 0; i < 4; i++) {
+            ctx.beginPath();
+            ctx.moveTo(18 + i * 8, 15);
+            ctx.lineTo(22 + i * 8, 9);
+            ctx.lineTo(26 + i * 8, 15);
+            ctx.closePath();
+            ctx.fill();
+        }
+
+        // Neck and head
+        ctx.fillStyle = '#1b1b26';
+        ctx.beginPath();
+        ctx.moveTo(46, 26);
+        ctx.lineTo(54, 8);
+        ctx.lineTo(62, 8);
+        ctx.lineTo(54, 28);
+        ctx.closePath();
+        ctx.fill();
+        ctx.fillRect(52, 2, 16, 11);   // head
+        ctx.fillRect(64, 8, 8, 6);     // snout
+        // Jaw drops open while charging fire
+        const jawDrop = dragon.action === 'telegraph' ? 4 : 0;
+        ctx.fillStyle = '#15151f';
+        ctx.fillRect(60, 12 + jawDrop, 11, 3);
+
+        // Horns
+        ctx.fillStyle = '#9999AA';
+        ctx.beginPath();
+        ctx.moveTo(54, 3); ctx.lineTo(46, -4); ctx.lineTo(52, 6);
+        ctx.closePath();
+        ctx.fill();
+        ctx.beginPath();
+        ctx.moveTo(58, 2); ctx.lineTo(52, -7); ctx.lineTo(57, 5);
+        ctx.closePath();
+        ctx.fill();
+
+        // Glowing eye
+        ctx.fillStyle = eyeColor;
+        ctx.fillRect(58, 5, 4, 3);
+        ctx.globalAlpha = 0.4 + 0.3 * Math.sin(t * 5);
+        ctx.fillRect(57, 4, 6, 5);
+        ctx.globalAlpha = 1;
+
+        // Near wing (in front), membrane tinted by the spell color
+        ctx.fillStyle = '#21212e';
+        ctx.beginPath();
+        ctx.moveTo(36, 16);
+        ctx.lineTo(18, -2 + flap);
+        ctx.lineTo(28, 14);
+        ctx.lineTo(14, 10 + flap * 0.6);
+        ctx.lineTo(32, 20);
+        ctx.closePath();
+        ctx.fill();
+        ctx.globalAlpha = 0.55;
+        ctx.fillStyle = accent;
+        ctx.beginPath();
+        ctx.moveTo(35, 17);
+        ctx.lineTo(20, flap);
+        ctx.lineTo(28, 15);
+        ctx.lineTo(17, 11 + flap * 0.6);
+        ctx.lineTo(31, 20);
+        ctx.closePath();
+        ctx.fill();
+        ctx.globalAlpha = 1;
+
+        // Telegraph: fire building in the open mouth - the player's cue to dodge
+        if (dragon.action === 'telegraph') {
+            const charge = 1 - Math.max(0, dragon.actionTimer) / Dragon.TUNING.telegraphTime;
+            ctx.globalAlpha = 0.7;
+            ctx.fillStyle = '#FF6622';
+            ctx.beginPath();
+            ctx.arc(70, 13, 3 + charge * 7, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#FFCC44';
+            ctx.beginPath();
+            ctx.arc(70, 13, 1 + charge * 3.5, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
         }
 
         ctx.restore();
@@ -1369,6 +1532,28 @@ const Sprites = {
         ctx.save();
 
         switch (proj.type) {
+            case 'dragonfire': {
+                const cx = sx + proj.width / 2;
+                const cy = sy + proj.height / 2;
+                // Purple trailing flame
+                ctx.globalAlpha = 0.5;
+                ctx.fillStyle = '#7733CC';
+                ctx.beginPath();
+                ctx.arc(cx - proj.vx * 0.025, cy - proj.vy * 0.025, 7, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+                // Fire core
+                ctx.fillStyle = '#FF6622';
+                ctx.beginPath();
+                ctx.arc(cx, cy, 5 + Math.sin(t * 20), 0, Math.PI * 2);
+                ctx.fill();
+                ctx.fillStyle = '#FFCC44';
+                ctx.beginPath();
+                ctx.arc(cx, cy, 2.5, 0, Math.PI * 2);
+                ctx.fill();
+                break;
+            }
+
             case 'ninjastar': {
                 // Spinning 4-pointed star
                 const cx = sx + proj.width / 2;
