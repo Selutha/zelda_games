@@ -28,6 +28,10 @@ const UI = {
     // Title screen
     updateTitle(game) {
         this.titleAnimTimer += game.deltaTime;
+        if (Input.resume && game.saveData) {
+            game.continueGame();
+            return;
+        }
         if (Input.confirm) {
             game.state = game.STATE.NAME_ENTRY;
             this.nameInput = '';
@@ -78,10 +82,19 @@ const UI = {
             ctx.fillText('Press ENTER or SPACE to Start', game.width / 2, 360);
         }
 
+        // Continue option when a save exists
+        if (game.saveData) {
+            const savedLevel = Levels.data[game.saveData.level];
+            const levelName = savedLevel ? savedLevel.name : 'the adventure';
+            ctx.fillStyle = '#88DDAA';
+            ctx.font = '15px monospace';
+            ctx.fillText(`Press C to continue: ${game.saveData.name} at ${levelName}`, game.width / 2, 392);
+        }
+
         // Controls hint
         ctx.fillStyle = '#555';
         ctx.font = '12px monospace';
-        ctx.fillText('Arrow Keys / WASD = Move & Jump  |  J/Z = Attack  |  1-4 = Spells', game.width / 2, 440);
+        ctx.fillText('Arrows/WASD = Move & Jump | J/Z = Attack | 1-4 = Spells | M = Music', game.width / 2, 440);
         ctx.textAlign = 'left';
     },
 
@@ -172,10 +185,23 @@ const UI = {
             ctx.fillText('x' + player.keys, padding + 8, padding + 46);
         }
 
+        // Coin counter
+        ctx.fillStyle = '#B8860B';
+        ctx.beginPath();
+        ctx.arc(padding + 5, padding + 55, 6, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#FFD700';
+        ctx.beginPath();
+        ctx.arc(padding + 5, padding + 55, 4.5, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.fillStyle = '#FFD700';
+        ctx.font = 'bold 12px monospace';
+        ctx.fillText('x' + game.coins, padding + 14, padding + 59);
+
         // Player name
         ctx.fillStyle = '#FFF';
         ctx.font = '10px monospace';
-        ctx.fillText(player.name, padding, padding + 58);
+        ctx.fillText(player.name, padding, padding + 72);
 
         // Spell indicators
         const spellNames = ['Fire', 'Ice', 'Dash', 'Blind'];
@@ -283,10 +309,10 @@ const UI = {
         ctx.textAlign = 'left';
     },
 
-    // Game over
+    // Game over - gentle, encouraging, quick to retry
     updateGameOver(game) {
         this.gameOverTimer += game.deltaTime;
-        if (this.gameOverTimer > 2 && Input.confirm) {
+        if (this.gameOverTimer > 1 && Input.confirm) {
             this.gameOverTimer = 0;
             game.loadLevel(game.currentLevel);
             game.state = game.STATE.PLAYING;
@@ -294,18 +320,23 @@ const UI = {
     },
 
     renderGameOver(ctx, game) {
-        ctx.fillStyle = 'rgba(100,0,0,0.7)';
+        ctx.fillStyle = 'rgba(20, 10, 40, 0.75)';
         ctx.fillRect(0, 0, game.width, game.height);
 
-        ctx.fillStyle = '#FF2222';
+        ctx.fillStyle = '#CC88FF';
         ctx.font = 'bold 40px monospace';
         ctx.textAlign = 'center';
-        ctx.fillText('GAME OVER', game.width / 2, game.height / 2 - 20);
+        ctx.fillText('OH NO!', game.width / 2, game.height / 2 - 40);
 
-        if (this.gameOverTimer > 2) {
+        ctx.fillStyle = '#AAA';
+        ctx.font = '16px monospace';
+        ctx.fillText('The shadows got you this time...', game.width / 2, game.height / 2);
+
+        if (this.gameOverTimer > 1) {
             ctx.fillStyle = '#FFF';
             ctx.font = '16px monospace';
-            ctx.fillText('Press ENTER to try again', game.width / 2, game.height / 2 + 30);
+            const name = game.playerName || 'hero';
+            ctx.fillText(`Press ENTER to try again - you can do it, ${name}!`, game.width / 2, game.height / 2 + 40);
         }
         ctx.textAlign = 'left';
     },
@@ -353,6 +384,10 @@ const UI = {
         ctx.fillStyle = '#FFF';
         ctx.font = '20px monospace';
         ctx.fillText(`${game.playerName} claimed the Golden Spear!`, game.width / 2, 300);
+
+        ctx.fillStyle = '#FFD700';
+        ctx.font = '16px monospace';
+        ctx.fillText(`Coins collected: ${game.coins}`, game.width / 2, 395);
 
         ctx.fillStyle = '#AA88FF';
         ctx.font = '16px monospace';

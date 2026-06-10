@@ -45,5 +45,7 @@ const Input = {
     get spell3() { return this.wasPressed('Digit3'); },  // Shadow Dash
     get spell4() { return this.wasPressed('Digit4'); },  // No-Sense
     get pause() { return this.wasPressed('Escape') || this.wasPressed('KeyP'); },
-    get confirm() { return this.wasPressed('Enter') || this.wasPressed('Space'); }
+    get confirm() { return this.wasPressed('Enter') || this.wasPressed('Space'); },
+    get resume() { return this.wasPressed('KeyC'); },        // continue a saved game
+    get musicToggle() { return this.wasPressed('KeyM'); }
 };

@@ -52,6 +52,7 @@ const Enemies = {
         if (enemy.type === 'shadowKing') {
             if (Boss.update(enemy, game)) {
                 game.state = game.STATE.VICTORY;
+                Audio.setMusic(null);
             }
             return;
         }
@@ -202,6 +203,19 @@ const Enemies = {
             enemy.dead = true;
             enemy.deathTimer = 0.5;
             Audio.play('enemyDie');
+
+            // Chance to drop a heart - tougher enemies drop more often
+            const tough = enemy.type === 'shadowSoldier' || enemy.type === 'skeletonMage';
+            if (Math.random() < (tough ? 0.5 : 0.3)) {
+                game.addPickup({
+                    type: 'heart',
+                    x: enemy.x + enemy.width / 2 - 8,
+                    y: enemy.y,
+                    width: 16, height: 16,
+                    vy: -180, gravity: true,
+                    lifetime: 12, animTimer: 0
+                });
+            }
 
             // Drop particles
             for (let i = 0; i < 8; i++) {

@@ -20,7 +20,17 @@ Castle Gate, Castle Halls, Dungeon Depths, Tower Ascent, and the Shadow King's T
 - Enemies with distinct behaviors: wolves, bats, spiders, shadow soldiers, and
   skeleton mages, plus a multi-phase Shadow King boss fight
 - Puzzles: switches, moving platforms, crystals, keys, and locked doors
-- Procedural pixel art and synthesized audio — the whole game is a few JS files
+- Coins scattered through every level (with a HUD counter) — coin trails mark the
+  way through trickier routes, and your total carries across levels in a run
+- Heart pickups: enemies sometimes drop one when defeated, and a few are hidden in
+  treasure spots; each restores one full heart
+- Tutorial signs in the first levels explain movement, attacking, spells, and portals;
+  sealed doors give a hint when you bump into them
+- Save and continue: progress (name, level, coins) is saved automatically at each
+  level transition — press **C** on the title screen to pick up where you left off
+- Forgiving jump controls (coyote time and jump buffering)
+- Procedural pixel art and synthesized audio, including looping chiptune background
+  music — the whole game is a few JS files
 
 ## Controls
 
@@ -35,6 +45,8 @@ Castle Gate, Castle Halls, Dungeon Depths, Tower Ascent, and the Shadow King's T
 | No-Sense    | 4                             |
 | Pause       | Escape or P                   |
 | Confirm     | Enter or Space                |
+| Toggle music| M                             |
+| Continue    | C (on the title screen)       |
 
 ## Running locally
 

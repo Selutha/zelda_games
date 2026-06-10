@@ -81,11 +81,26 @@ const Levels = {
             tiles: tiles,
             startX: 64,        // left side, on ground
             startY: 386,       // row 13 top (13*32=416) minus player height (30) = 386
+            // Enemies sit past the tutorial signs so reading is safe
             enemies: [
-                { type: 'wolf', x: 400, y: 384 },
-                { type: 'bat',  x: 700, y: 300 }
+                { type: 'wolf', x: 560, y: 384 },
+                { type: 'bat',  x: 1100, y: 300 }
             ],
             puzzles: [],
+            hints: [
+                { col: 3, row: 12, text: 'Move with ARROWS or WASD - SPACE to jump!' },
+                { col: 8, row: 12, text: 'Press J or Z to throw ninja stars!' },
+                { col: 16, row: 12, text: 'Careful - jump over the gaps!' },
+                { col: 24, row: 12, text: 'Press 1 2 3 4 to cast magic spells!' },
+                { col: 52, row: 12, text: 'Hop up the platforms to reach the portal!' }
+            ],
+            // [col, row] coin positions - trails mark the jumps and platforms
+            coins: [
+                [7, 8], [8, 8], [9, 8], [14, 6], [15, 6], [16, 6], [17, 6],
+                [18, 12], [19, 12], [25, 8], [26, 8], [27, 8],
+                [37, 6], [38, 6], [39, 6], [40, 6], [41, 12], [42, 12],
+                [44, 8], [45, 8], [51, 6], [52, 6], [55, 4], [56, 4], [57, 4]
+            ],
             exitX: 57 * 32,    // near exit portal tile
             exitY: 4 * 32,
             get widthPx()  { return this.cols * 32; },
@@ -138,6 +153,13 @@ const Levels = {
                 { type: 'pressurePlate', id: 'pp1', x: 1056, y: 408, width: 32, height: 8 },
                 { type: 'movingPlatform', linkedId: 'pp1', requiresTrigger: true, x: 1184, y: 416, startX: 1184, startY: 416, endX: 1184, endY: 256, width: 64, speed: 60 }
             ],
+            coins: [
+                [6, 8], [7, 8], [12, 6], [13, 6], [18, 4], [19, 4],
+                [22, 12], [23, 12], [24, 12], [28, 5], [29, 5], [38, 6], [39, 6],
+                [46, 12], [47, 12], [48, 11], [48, 7], [49, 7],
+                [55, 8], [56, 8], [58, 5], [59, 5], [62, 12], [63, 12],
+                [67, 5], [68, 5], [74, 3], [75, 3]
+            ],
             exitX: 76 * 32,
             exitY: 3 * 32,
             get widthPx()  { return this.cols * 32; },
@@ -170,6 +192,16 @@ const Levels = {
             [  D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,_,_,_,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,_,_,_,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D,D ],  // row 14
         ];
 
+        // The crystal door must truly gate the exit. The old portal hung in the
+        // sky with 11 rows of open air over the door, so the player could hop
+        // over it and the crystals meant nothing. Now a rune-sealed wall spans
+        // from ceiling to the door, and the portal waits behind it at ground level.
+        const X = 16;
+        for (let row = 0; row <= 10; row++) tiles[row][63] = X;
+        tiles[2][67] = _;                                          // remove old sky portal
+        for (let col = 65; col <= 68; col++) tiles[3][col] = _;    // and its platform
+        tiles[12][67] = E;                                         // portal behind the door
+
         return {
             name: "Mystic Grove",
             theme: "forest",
@@ -189,6 +221,16 @@ const Levels = {
                 { type: 'crystal', id: 'c1', group: 'grove1', x: 352, y: 384, width: 32, height: 32 },
                 { type: 'crystal', id: 'c2', group: 'grove1', x: 1024, y: 384, width: 32, height: 32 },
                 { type: 'door', linkedId: 'grove1', x: 2016, y: 352, width: 32, height: 64 }
+            ],
+            hints: [
+                { col: 8, row: 12, text: 'Collect ALL the glowing crystals to open the sealed door!' }
+            ],
+            coins: [
+                [10, 7], [11, 7], [12, 7], [16, 5], [17, 5],
+                [20, 12], [21, 12], [22, 12], [23, 3], [24, 3],
+                [32, 6], [33, 6], [38, 8], [39, 8], [42, 12], [43, 12], [44, 12],
+                [44, 6], [45, 6], [48, 4], [49, 4], [54, 7], [55, 7], [60, 4], [61, 4],
+                [65, 11], [66, 11], [67, 11]   // reward trail behind the crystal door
             ],
             exitX: 67 * 32,
             exitY: 2 * 32,
@@ -241,6 +283,13 @@ const Levels = {
                 { type: 'wolf',          x: 1700, y: 480 }
             ],
             puzzles: [],
+            coins: [
+                [14, 8], [15, 8], [20, 6], [21, 6], [28, 7], [29, 7],
+                [33, 15], [36, 15], [39, 15],   // trail through the tunnel under the spike hill
+                [49, 14], [50, 14], [51, 14], [54, 10], [55, 10],
+                [62, 7], [63, 7], [68, 6], [69, 6], [74, 4], [75, 4]
+            ],
+            hearts: [[42, 15]],   // a reward waiting at the end of the spike tunnel
             exitX: 76 * 32,
             exitY: 4 * 32,
             get widthPx()  { return this.cols * 32; },
@@ -276,6 +325,12 @@ const Levels = {
             [  B,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,B ],
         ];
 
+        // The key room (cols 32-38) was sealed on all sides - the key was
+        // unreachable without an obscure mid-air dash through a wall. Open a
+        // shaft under it so a springboard can bounce the player up inside.
+        tiles[10][34] = _; tiles[10][35] = _;
+        tiles[11][34] = _; tiles[11][35] = _;
+
         return {
             name: "Castle Gate",
             theme: "castle",
@@ -290,9 +345,20 @@ const Levels = {
             ],
             puzzles: [
                 { type: 'springBoard', id: 'sb1', x: 14 * 32, y: 15 * 32 - 12, width: 64, power: -820 },
+                { type: 'springBoard', id: 'sb2', x: 34 * 32, y: 15 * 32 - 12, width: 64, power: -700 },
                 { type: 'key', id: 'k1', x: 35 * 32, y: 9 * 32, width: 24, height: 24 },
                 { type: 'lockedDoor', id: 'ld1', x: 36 * 32, y: 3 * 32, width: 32, height: 64 }
             ],
+            hints: [
+                { col: 32, row: 13, text: 'Boing! Bounce up high to find the key!' }
+            ],
+            coins: [
+                [5, 13], [10, 13], [20, 13], [25, 13], [30, 13],
+                [15, 12], [15, 9], [15, 6],          // springboard launch trail
+                [33, 9], [36, 9], [37, 9], [38, 9],  // key room treasure
+                [5, 3], [11, 3], [18, 3], [25, 3], [31, 3]
+            ],
+            hearts: [[33, 8]],
             exitX: 38 * 32, exitY: 4 * 32,
             get widthPx() { return this.cols * 32; },
             get heightPx() { return this.rows * 32; }
@@ -332,6 +398,14 @@ const Levels = {
             [  B,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,B ],
         ];
 
+        // This level used to deadlock: both keys sat behind locked door hld1,
+        // which itself needs a key. Now the first key floats in the mid floor
+        // before the door, the right wing (second key) gets a walk-in doorway,
+        // and the top-left room becomes an open treasure room.
+        tiles[2][9] = _; tiles[3][9] = _;      // doorway into top-left treasure room
+        tiles[7][34] = _; tiles[8][34] = _;    // doorway into the right wing
+        tiles[2][36] = _;                      // exit door's top was buried in wall
+
         return {
             name: "Castle Halls",
             theme: "castle",
@@ -349,11 +423,22 @@ const Levels = {
             puzzles: [
                 { type: 'springBoard', id: 'sb1', x: 9 * 32, y: 21 * 32 - 12, width: 64, power: -820 },
                 { type: 'springBoard', id: 'sb2', x: 23 * 32, y: 10 * 32 - 12, width: 64, power: -820 },
-                { type: 'key', id: 'hk1', x: 4 * 32, y: 2 * 32, width: 24, height: 24 },
+                // First key floats mid-floor BEFORE locked door hld1 (jump to grab it)
+                { type: 'key', id: 'hk1', x: 16 * 32, y: 8 * 32, width: 24, height: 24 },
                 { type: 'key', id: 'hk2', x: 39 * 32, y: 7 * 32, width: 24, height: 24 },
                 { type: 'lockedDoor', id: 'hld1', x: 20 * 32, y: 8 * 32, width: 32, height: 64 },
                 { type: 'lockedDoor', id: 'hld2', x: 36 * 32, y: 2 * 32, width: 32, height: 64 }
             ],
+            coins: [
+                [4, 20], [14, 20], [18, 20], [25, 20],
+                [10, 17], [10, 14], [10, 11],   // springboard trail to the mid floor
+                [13, 8], [19, 8],
+                [24, 8], [24, 5], [24, 2],      // springboard trail to the top floor
+                [36, 8], [37, 8], [41, 8], [42, 8],         // right wing
+                [2, 2], [3, 2], [4, 2], [5, 2], [6, 2], [7, 2],  // treasure room
+                [12, 2], [16, 2], [20, 2], [28, 3], [32, 3]
+            ],
+            hearts: [[5, 3], [41, 7]],
             exitX: 38 * 32, exitY: 3 * 32,
             get widthPx() { return this.cols * 32; },
             get heightPx() { return this.rows * 32; }
@@ -388,6 +473,14 @@ const Levels = {
             [  B,I,I,I,I,I,I,I,I,I,I,I,I,I,I,I,I,I,I,I,I,I,I,I,I,I,I,I,I,I,I,I,I,I,I,I,I,I,I,I,I,I,I,I,B ],
         ];
 
+        // Both key rooms were sealed boxes floating mid-air, so the keys (and
+        // therefore the exit) were unreachable. Open shafts beneath them for
+        // springboard entry from the dungeon floor.
+        tiles[10][15] = _; tiles[10][16] = _;
+        tiles[11][15] = _; tiles[11][16] = _;
+        tiles[10][37] = _; tiles[10][38] = _;
+        tiles[11][37] = _; tiles[11][38] = _;
+
         return {
             name: "Dungeon Depths",
             theme: "castle",
@@ -404,11 +497,21 @@ const Levels = {
             ],
             puzzles: [
                 { type: 'springBoard', id: 'dsb1', x: 8 * 32, y: 17 * 32 - 12, width: 64, power: -950 },
+                { type: 'springBoard', id: 'dsb2', x: 15 * 32, y: 17 * 32 - 12, width: 64, power: -780 },
+                { type: 'springBoard', id: 'dsb3', x: 37 * 32, y: 17 * 32 - 12, width: 64, power: -780 },
                 { type: 'key', id: 'dk1', x: 15 * 32 + 8, y: 9 * 32, width: 24, height: 24 },
                 { type: 'key', id: 'dk2', x: 37 * 32 + 8, y: 9 * 32, width: 24, height: 24 },
                 { type: 'lockedDoor', id: 'dld1', x: 25 * 32, y: 3 * 32, width: 32, height: 64 },
                 { type: 'lockedDoor', id: 'dld2', x: 36 * 32, y: 3 * 32, width: 32, height: 64 }
             ],
+            coins: [
+                [5, 15], [12, 15], [20, 15], [28, 15], [33, 15], [42, 15],
+                [22, 14], [23, 13], [24, 14],   // arc over the spikes
+                [9, 14], [9, 10], [9, 7],       // big springboard trail
+                [14, 9], [17, 9], [36, 9], [39, 9],   // key rooms
+                [5, 3], [12, 3], [18, 3], [30, 3], [33, 3]
+            ],
+            hearts: [[16, 8], [38, 8]],
             exitX: 38 * 32, exitY: 4 * 32,
             get widthPx() { return this.cols * 32; },
             get heightPx() { return this.rows * 32; }
@@ -447,6 +550,9 @@ const Levels = {
             [  B,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,F,B ],
         ];
 
+        // The exit door's top half was buried inside a rune wall tile
+        tiles[2][19] = _;
+
         return {
             name: "Tower Ascent",
             theme: "castle",
@@ -471,6 +577,16 @@ const Levels = {
                 { type: 'lockedDoor', id: 'tld1', x: 14 * 32, y: 7 * 32, width: 32, height: 64 },
                 { type: 'lockedDoor', id: 'tld2', x: 19 * 32, y: 2 * 32, width: 32, height: 64 }
             ],
+            coins: [
+                [6, 19], [10, 19], [15, 19], [20, 19],
+                [25, 18], [25, 15], [25, 12],   // bounce trail to floor 2
+                [6, 12], [10, 12], [18, 12], [21, 12],
+                [4, 11], [4, 8], [4, 6],        // bounce trail to floor 3
+                [7, 7], [10, 7], [18, 7], [22, 7],
+                [26, 6], [26, 4],               // bounce trail to the top
+                [5, 2], [9, 2], [12, 2]
+            ],
+            hearts: [[8, 7], [16, 2]],
             exitX: 22 * 32, exitY: 3 * 32,
             get widthPx() { return this.cols * 32; },
             get heightPx() { return this.rows * 32; }
@@ -514,6 +630,7 @@ const Levels = {
                 { type: 'shadowKing', x: 960, y: 320 }
             ],
             puzzles: [],
+            hearts: [[4, 12], [35, 12]],   // a fighting chance against the king
             exitX: null,       // no exit - boss death triggers victory
             exitY: null,
             get widthPx()  { return this.cols * 32; },

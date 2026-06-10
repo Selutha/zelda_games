@@ -1573,5 +1573,115 @@ const Sprites = {
         }
 
         ctx.restore();
+    },
+
+    // =========================================================================
+    // drawSign - tutorial sign post with a speech bubble when the player is near
+    // =========================================================================
+    drawSign(ctx, hint, camera, game) {
+        const worldX = hint.col * 32;
+        const worldY = hint.row * 32;
+        if (!camera.isVisible(worldX, worldY, 32, 32)) return;
+        const px = Math.floor(camera.screenX(worldX));
+        const py = Math.floor(camera.screenY(worldY));
+
+        // Wooden post and board
+        ctx.fillStyle = '#6B4A2A';
+        ctx.fillRect(px + 14, py + 14, 4, 18);
+        ctx.fillStyle = '#8B6914';
+        ctx.fillRect(px + 2, py + 2, 28, 14);
+        ctx.fillStyle = '#A0792C';
+        ctx.fillRect(px + 4, py + 4, 24, 10);
+        // Scribble lines
+        ctx.fillStyle = '#5C3A1E';
+        ctx.fillRect(px + 7, py + 7, 18, 1);
+        ctx.fillRect(px + 7, py + 10, 12, 1);
+
+        // Speech bubble when the player is close
+        const player = game.player;
+        if (!player) return;
+        const dx = (player.x + player.width / 2) - (worldX + 16);
+        const dy = (player.y + player.height / 2) - (worldY + 16);
+        if (dx * dx + dy * dy > 140 * 140) return;
+
+        ctx.font = '12px monospace';
+        const textW = ctx.measureText(hint.text).width;
+        let bx = px + 16 - textW / 2;
+        bx = Math.max(6, Math.min(bx, game.width - textW - 6));
+        const by = py - 22;
+        ctx.fillStyle = 'rgba(10, 10, 26, 0.85)';
+        ctx.fillRect(bx - 8, by - 14, textW + 16, 22);
+        ctx.strokeStyle = '#8B6914';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(bx - 8, by - 14, textW + 16, 22);
+        ctx.fillStyle = '#FFE9A0';
+        ctx.fillText(hint.text, bx, by + 2);
+    },
+
+    // =========================================================================
+    // drawPickup - hearts and coins
+    // =========================================================================
+    drawPickup(ctx, pickup, camera) {
+        const t = pickup.animTimer || 0;
+        const bob = Math.sin(t * 3) * 2;
+        const px = Math.floor(camera.screenX(pickup.x));
+        const py = Math.floor(camera.screenY(pickup.y) + bob);
+
+        // Dropped hearts blink before they fade away
+        if (pickup.lifetime !== undefined && pickup.lifetime < 3) {
+            if (Math.floor(pickup.lifetime * 8) % 2 === 0) return;
+        }
+
+        if (pickup.type === 'coin') {
+            const cx = px + 8;
+            const cy = py + 8;
+            // Spin illusion: squash horizontally over time
+            const squish = Math.abs(Math.cos(t * 3));
+            const halfW = Math.max(1.5, 7 * squish);
+            // Soft glow
+            ctx.globalAlpha = 0.15;
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.arc(cx, cy, 11, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+            // Coin edge and face
+            ctx.fillStyle = '#B8860B';
+            ctx.beginPath();
+            ctx.ellipse(cx, cy, halfW, 7, 0, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.fillStyle = '#FFD700';
+            ctx.beginPath();
+            ctx.ellipse(cx, cy, Math.max(1, halfW - 1.5), 5.5, 0, 0, Math.PI * 2);
+            ctx.fill();
+            // Star stamp, visible when the coin faces us
+            if (squish > 0.6) {
+                ctx.fillStyle = '#B8860B';
+                ctx.fillRect(cx - 1, cy - 3, 2, 6);
+                ctx.fillRect(cx - 3, cy - 1, 6, 2);
+            }
+            // Shine
+            ctx.fillStyle = '#FFF8CC';
+            ctx.fillRect(cx - Math.floor(halfW / 2) - 1, cy - 4, 2, 2);
+        } else if (pickup.type === 'heart') {
+            // Soft glow
+            ctx.globalAlpha = 0.2 + 0.1 * Math.sin(t * 4);
+            ctx.fillStyle = '#FF3344';
+            ctx.beginPath();
+            ctx.arc(px + 8, py + 8, 12, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.globalAlpha = 1;
+            // Pixel heart
+            ctx.fillStyle = '#FF3344';
+            ctx.fillRect(px + 2, py + 1, 4, 2);
+            ctx.fillRect(px + 10, py + 1, 4, 2);
+            ctx.fillRect(px, py + 3, 16, 4);
+            ctx.fillRect(px + 2, py + 7, 12, 4);
+            ctx.fillRect(px + 4, py + 11, 8, 3);
+            ctx.fillRect(px + 6, py + 14, 4, 2);
+            // Highlight
+            ctx.fillStyle = '#FF99AA';
+            ctx.fillRect(px + 3, py + 3, 3, 3);
+        }
     }
 };

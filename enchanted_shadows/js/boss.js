@@ -59,6 +59,21 @@ const Boss = {
         else if (hpPct <= 0.66) boss.phase = 2;
         else boss.phase = 1;
 
+        // Each new phase tosses out a heart so the fight stays fair
+        if (boss.phase !== boss._lastPhase) {
+            if (boss._lastPhase !== undefined) {
+                game.addPickup({
+                    type: 'heart',
+                    x: boss.x + boss.width / 2 - 8,
+                    y: boss.y - 20,
+                    width: 16, height: 16,
+                    vy: -250, gravity: true,
+                    lifetime: 15, animTimer: 0
+                });
+            }
+            boss._lastPhase = boss.phase;
+        }
+
         boss.invincibleTimer = Math.max(0, boss.invincibleTimer - game.deltaTime);
         boss.invincible = boss.invincibleTimer > 0;
 
@@ -131,7 +146,7 @@ const Boss = {
                     width: 12, height: 12,
                     vx: Math.cos(angle) * 250,
                     vy: Math.sin(angle) * 250,
-                    damage: 2,
+                    damage: 1,
                     type: 'shadowbolt',
                     fromPlayer: false,
                     lifetime: 3
@@ -179,7 +194,9 @@ const Boss = {
     },
 
     _summon(boss, game) {
-        // Spawn 1-2 shadow soldiers
+        // Spawn 1-2 shadow soldiers, but never flood the arena
+        const minions = game.enemies.filter(e => e.type !== 'shadowKing' && !e.dead).length;
+        if (minions >= 3) return;
         const count = boss.phase === 3 ? 2 : 1;
         for (let i = 0; i < count; i++) {
             const sx = boss.x + (i === 0 ? -80 : 80);
@@ -193,6 +210,7 @@ const Boss = {
         boss.health -= damage;
         boss.invincibleTimer = 0.5;
         Audio.play('bosshit');
+        game.triggerShake(0.15, 3);
 
         for (let i = 0; i < 6; i++) {
             game.addParticle({

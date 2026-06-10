@@ -327,7 +327,16 @@ const Puzzles = {
                 player.x = obj.x + 32;
             }
             player.vx = 0;
+
+            // Tell the player what this door wants
+            if (!obj._hintShown || obj._hintTimer <= 0) {
+                this.crystalMessage = 'Sealed tight! Find all the glowing crystals!';
+                this.crystalMessageTimer = 2;
+                obj._hintShown = true;
+                obj._hintTimer = 3;
+            }
         }
+        if (obj._hintTimer > 0) obj._hintTimer -= game.deltaTime;
     },
 
     render(ctx, obj, camera) {

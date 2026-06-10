@@ -27,12 +27,14 @@ const Player = {
             maxHealth: 6,
             mana: 100,
             maxMana: 100,
-            manaRegen: 8, // per second
+            manaRegen: 12, // per second - generous so spells stay fun
 
             // Timers
             invincibleTimer: 0,
             attackCooldown: 0,
             castTimer: 0,
+            coyoteTimer: 0,      // grace period to jump after walking off a ledge
+            jumpBufferTimer: 0,  // jump pressed slightly before landing still counts
 
             // Shadow Dash state
             dashing: false,
@@ -175,12 +177,25 @@ const Player = {
             player.vx = 0;
         }
 
-        // --- Jump ---
+        // --- Jump (with coyote time and jump buffering for forgiving controls) ---
+        if (player.onGround) {
+            player.coyoteTimer = 0.1;
+        } else {
+            player.coyoteTimer = Math.max(0, player.coyoteTimer - dt);
+        }
         if (input.jump) {
-            if (player.onGround) {
+            player.jumpBufferTimer = 0.12;
+        } else {
+            player.jumpBufferTimer = Math.max(0, player.jumpBufferTimer - dt);
+        }
+
+        if (player.jumpBufferTimer > 0) {
+            if (player.onGround || player.coyoteTimer > 0) {
                 // Normal jump
                 player.vy = -520;
                 player.onGround = false;
+                player.coyoteTimer = 0;
+                player.jumpBufferTimer = 0;
                 Audio.play('jump');
             } else if (player.onWall) {
                 // Wall jump: jump away from wall
@@ -189,6 +204,7 @@ const Player = {
                 player.vx = -player.wallDir * 250;
                 player.facing = -player.wallDir;
                 player.onWall = false;
+                player.jumpBufferTimer = 0;
             }
         }
 
@@ -432,6 +448,7 @@ const Player = {
         player.health -= damage;
         player.invincibleTimer = 1.0;
         Audio.play('hit');
+        game.triggerShake(0.25, 4);
 
         // Hurt particles
         for (let i = 0; i < 6; i++) {
