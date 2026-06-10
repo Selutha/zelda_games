@@ -11,6 +11,8 @@ NUC_HOST="${NUC_HOST:-root@nuc1}"
 REMOTE_DIR="${REMOTE_DIR:-/home/selutha/zelda_games}"
 # The repo on the NUC is owned by this user; pulling as root would break ownership
 REMOTE_REPO_OWNER="${REMOTE_REPO_OWNER:-selutha}"
+# Key-based auth only - never hang on a password prompt mid-deploy
+SSH_OPTS=(-o BatchMode=yes -o ConnectTimeout=10)
 
 cd "$(dirname "$0")"
 
@@ -24,7 +26,7 @@ echo "==> Pushing $(git rev-parse --abbrev-ref HEAD) ($(git rev-parse --short HE
 git push
 
 echo "==> Updating ${NUC_HOST}:${REMOTE_DIR}"
-ssh "$NUC_HOST" "
+ssh "${SSH_OPTS[@]}" "$NUC_HOST" "
     set -euo pipefail
     cd '$REMOTE_DIR'
     sudo -u '$REMOTE_REPO_OWNER' git pull --ff-only
@@ -34,13 +36,13 @@ ssh "$NUC_HOST" "
 
 echo '==> Verifying'
 local_head="$(git rev-parse HEAD)"
-remote_head="$(ssh "$NUC_HOST" "sudo -u '$REMOTE_REPO_OWNER' git -C '$REMOTE_DIR' rev-parse HEAD")"
+remote_head="$(ssh "${SSH_OPTS[@]}" "$NUC_HOST" "sudo -u '$REMOTE_REPO_OWNER' git -C '$REMOTE_DIR' rev-parse HEAD")"
 if [[ "$local_head" != "$remote_head" ]]; then
     echo "ERROR: remote HEAD ($remote_head) does not match local HEAD ($local_head)." >&2
     exit 1
 fi
 
-ssh "$NUC_HOST" "
+ssh "${SSH_OPTS[@]}" "$NUC_HOST" "
     set -euo pipefail
     docker ps --filter name=zelda-games --format '{{.Names}}: {{.Status}}' | grep -q 'Up' \
         || { echo 'ERROR: zelda-games container is not running' >&2; exit 1; }
